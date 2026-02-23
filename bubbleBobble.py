@@ -21,7 +21,8 @@ HEIGHT = 450
 PLATFORM_HEIGHT = 30
 enemy_list = []
 platform_list = []
-
+player = None
+canvas = None
 def make_enemy_sprite():
     pattern = [
         "00000000000",
@@ -66,9 +67,6 @@ def make_player_sprite():
 
     return img
 
-img = make_player_sprite
-player = canvas.create_image(WIDTH//2, HEIGHT//2, image=img, anchor="center")
-
 def make_platform(width):
     h = PLATFORM_HEIGHT
     w = width
@@ -86,7 +84,8 @@ def spawn_enemy(x_pos, y_pos):
     enemy_list.append(e)
 
 def spawn_player(x_pos, y_pos):
-    img = make_player_sprite
+    global player
+    img = make_player_sprite()
     player = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
 
 def place_platform(x_pos, y_pos, width):
@@ -101,15 +100,19 @@ def move_right(event):
     canvas.move(player, 15, 0)
 
 def jump(event):
-    canvas.move(player, 0, PLATFORM_HEIGHT+10)
+    canvas.move(player, 0, PLATFORM_HEIGHT+50)
+
+root = tk.Tk()
+root.title("Bubble Bobble")
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)
 root.bind("<space>", jump)
 
-root = tk.Tk()
-root.title("Bubble Bobble")
-
-canvas = tk.canvas(root, width = WIDTH, height = HEIGHT, bg = "black")
+canvas = tk.Canvas(root, width = WIDTH, height = HEIGHT, bg = "black")
+spawn_player(WIDTH//2, HEIGHT//2)
+img = make_player_sprite()
+canvas.create_text(WIDTH//2, HEIGHT//2, text = "GAME OVER", fill = "red")
+canvas.create_image(WIDTH//2, HEIGHT//2, image=img, anchor="center")
 canvas.pack()
-
+root.mainloop()

@@ -15,14 +15,25 @@ catch enemies in bubble
 if touch enemy and not in bubble, dead
 '''
 import tkinter as tk
-
+isFacingLeft = True
 WIDTH = 600
 HEIGHT = 450
-PLATFORM_HEIGHT = 30
+PLATFORM_HEIGHT = 25
 enemy_list = []
 platform_list = []
-player = None
-canvas = None
+enemy_images = []
+player_image = None
+bubble_images = []
+platform_img = []
+root = tk.Tk()
+root.title("Bubble Bobble")
+
+canvas = tk.Canvas(root, width = WIDTH, height = HEIGHT, bg = "black")
+canvas.pack()
+
+player = canvas.create_image(0, 0)
+
+
 def make_enemy_sprite():
     pattern = [
         "00000000000",
@@ -32,7 +43,7 @@ def make_enemy_sprite():
         "00000000000",
         "00000000000",
         "00000000000",
-        "00000000000",
+        "00000000000"
     ]
     h = len(pattern)
     w = len(pattern[0])
@@ -40,7 +51,7 @@ def make_enemy_sprite():
 
     for y in range(h):
         for x in range(w):
-            if pattern[y][x] == 0:
+            if pattern[y][x] == "0":
                 img.put("#ff0000", (x,y))
 
     return img
@@ -54,7 +65,7 @@ def make_player_sprite():
         "00000000000",
         "00000000000",
         "00000000000",
-        "00000000000",
+        "00000000000"
     ]
     h = len(pattern)
     w = len(pattern[0])
@@ -62,7 +73,7 @@ def make_player_sprite():
 
     for y in range(h):
         for x in range(w):
-            if pattern[y][x] == 0:
+            if pattern[y][x] == "0":
                 img.put("#00fff2", (x,y))
 
     return img
@@ -78,41 +89,87 @@ def make_platform(width):
     
     return img
 
+def make_bubble_sprite():
+    pattern = ["00000000000",
+               "00044444000",
+               "00440000400",
+               "00400400400",
+               "00404000400",
+               "00400000400",
+               "00400000400",
+               "00044444000",
+               "00000000000"]
+               
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            else:
+                img.put("#00d9ff")
+
+    return img
+
 def spawn_enemy(x_pos, y_pos):
     img = make_enemy_sprite()
+    enemy_images.append(img)
     e = canvas.create_image(x_pos, y_pos, image=img, anchor="nw")
     enemy_list.append(e)
 
 def spawn_player(x_pos, y_pos):
     global player
-    img = make_player_sprite()
-    player = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
+    global player_image
+    pImg = make_player_sprite()
+    player_image = pImg
+    player = canvas.create_image(x_pos, y_pos, image=pImg, anchor="center")
+
+def spawn_bubble(x_pos, y_pos):
+    img = make_bubble_sprite()
+    bubble_images.append(img)
+    bubble = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
 
 def place_platform(x_pos, y_pos, width):
     img = make_platform(width)
     p = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
+    platform_img.append(img)
     platform_list.append(p)
     
 def move_left(event):
+    global isFacingLeft
     canvas.move(player, -15, 0)
+    isFacingLeft = True
 
 def move_right(event):
+    global isFacingLeft
     canvas.move(player, 15, 0)
+    isFacingLeft = False
 
 def jump(event):
-    canvas.move(player, 0, PLATFORM_HEIGHT+50)
+    canvas.move(player, 0, -PLATFORM_HEIGHT-30)
 
-root = tk.Tk()
-root.title("Bubble Bobble")
+def shoot_bubble(event):
+    spawn_bubble(canvas.coords(player)[0], canvas.coords(player)[1])
+    if isFacingLeft:
+        canvas.move(bubble_images[-1], -100, 0)
+
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)
 root.bind("<space>", jump)
+root.bind("<b>", shoot_bubble)
 
-canvas = tk.Canvas(root, width = WIDTH, height = HEIGHT, bg = "black")
-spawn_player(WIDTH//2, HEIGHT//2)
-img = make_player_sprite()
-canvas.create_text(WIDTH//2, HEIGHT//2, text = "GAME OVER", fill = "red")
-canvas.create_image(WIDTH//2, HEIGHT//2, image=img, anchor="center")
-canvas.pack()
+
+spawn_enemy(100, 100)
+place_platform(WIDTH//2, 400, 100)
+place_platform(WIDTH//2+150, 350, 150)
+place_platform(WIDTH//2-150, 350, 150)
+place_platform(WIDTH//2+70, 300, 80)
+place_platform(WIDTH//2-70, 300, 80)
+place_platform(WIDTH//2+210, 300, 80)
+place_platform(WIDTH//2-210, 300, 80)
+spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-4)
+
 root.mainloop()

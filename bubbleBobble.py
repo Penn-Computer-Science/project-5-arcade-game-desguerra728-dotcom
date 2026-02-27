@@ -21,10 +21,12 @@ HEIGHT = 450
 PLATFORM_HEIGHT = 25
 enemy_list = []
 platform_list = []
+
 enemy_images = []
 player_image = None
 bubble_images = []
 platform_img = []
+
 root = tk.Tk()
 root.title("Bubble Bobble")
 
@@ -36,14 +38,24 @@ player = canvas.create_image(0, 0)
 
 def make_enemy_sprite():
     pattern = [
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000"
+        "000000000000000000",
+        "000000000000000000",
+        "000222222222220000",
+        "002222222222222000",
+        "002222222222222000",
+        "000022222222222000",
+        "003302222222222000",
+        "030030222222222000",
+        "030030222220202000",
+        "003302222220202000",
+        "003302222220202000",
+        "030035552222222000",
+        "030035555555555500",
+        "003314555555555500",
+        "001114455555555000",
+        "000011440014400000",
+        "000000000111144000",
+        "000000000000000000"
     ]
     h = len(pattern)
     w = len(pattern[0])
@@ -52,20 +64,42 @@ def make_enemy_sprite():
     for y in range(h):
         for x in range(w):
             if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
                 img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+    
+    larger_img = img.zoom(2, 2)
 
-    return img
+    return larger_img
 
 def make_player_sprite():
     pattern = [
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000",
-        "00000000000"
+        "000000005000000400",
+        "000000055500004010",
+        "000555555550000400",
+        "000055111111100004",
+        "000051111331130010",
+        "055511113301033000",
+        "005511113041043000",
+        "000511113001003000",
+        "055511113001003000",
+        "005511553311133500",
+        "000511001111111100",
+        "000511110011100100",
+        "000511111111111100",
+        "000511111133330000",
+        "005111113333333000",
+        "055111133333333000",
+        "511111222233323000",
+        "111112223333222200"
     ]
     h = len(pattern)
     w = len(pattern[0])
@@ -74,9 +108,21 @@ def make_player_sprite():
     for y in range(h):
         for x in range(w):
             if pattern[y][x] == "0":
-                img.put("#00fff2", (x,y))
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
 
-    return img
+    larger_img = img.zoom(2, 2)            
+
+    return larger_img
 
 def make_platform(width):
     h = PLATFORM_HEIGHT
@@ -89,16 +135,26 @@ def make_platform(width):
     
     return img
 
-def make_bubble_sprite():
-    pattern = ["00000000000",
-               "00044444000",
-               "00440000400",
-               "00400400400",
-               "00404000400",
-               "00400000400",
-               "00400000400",
-               "00044444000",
-               "00000000000"]
+def make_right_bub1():
+    pattern = [
+        "000000000000000400",
+        "000044444444440040",
+        "000400000000004000",
+        "004004040000000400",
+        "040040000000000040",
+        "040400000000040040",
+        "040400000000004040",
+        "040000000000004040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "004000000000000400",
+        "400400000000004000",
+        "000044444444440000",
+        "004000000000000000"]
                
     h = len(pattern)
     w = len(pattern[0])
@@ -108,10 +164,193 @@ def make_bubble_sprite():
         for x in range(w):
             if pattern[y][x] == "0":
                 img.put("#000000", (x,y))
-            else:
-                img.put("#00d9ff")
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
 
-    return img
+    larger_img = img.zoom(2, 2)            
+
+    return larger_img
+
+def make_right_bub2():
+    pattern = [
+        "000000005000000100",
+        "000000055500004040",
+        "000555555550000400",
+        "000055111111100001",
+        "000051111331130040",
+        "055511113301033000",
+        "005511113001003000",
+        "000511113041043000",
+        "055511113001003000",
+        "005511553311133500",
+        "000511001111111100",
+        "000511110011100100",
+        "000511111111111100",
+        "000511111133330000",
+        "005111113333333000",
+        "055111133333333000",
+        "511111222333322220",
+        "111112222233222000"]
+               
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)            
+
+    return larger_img
+
+def make_left_bub1():
+    pattern = [
+        "004000000500000000",
+        "010400005550000000",
+        "004000055555555000",
+        "400001111111550000",
+        "010031133111150000",
+        "000330103311115550",
+        "000340140311115500",
+        "000300100311115000",
+        "000300100311115550",
+        "005331113355115500",
+        "001111111100115000",
+        "001001110011115000",
+        "001111111111115000",
+        "000033331111115000",
+        "000333333311111500",
+        "000333333331111550",
+        "000323332222111115",
+        "002222333322211111"]
+               
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)            
+
+    return larger_img
+
+def make_left_bub2():
+    pattern = [
+        "001000000500000000",
+        "040400005550000000",
+        "004000055555555000",
+        "100001111111550000",
+        "040031133111150000",
+        "000330103311115550",
+        "000300100311115500",
+        "000340140311115000",
+        "000300100311115550",
+        "005331113355115500",
+        "001111111100115000",
+        "001001110011115000",
+        "001111111111115000",
+        "000033331111115000",
+        "000333333311111500",
+        "000333333331111550",
+        "022223333222111115",
+        "000222332222211111",]
+                   
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)            
+
+    return larger_img
+
+def make_bubble_sprite():
+    pattern = ["000000000000000400",
+        "000044444444440040",
+        "000400000000004000",
+        "004004040000000400",
+        "040040000000000040",
+        "040400000000040040",
+        "040400000000004040",
+        "040000000000004040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "040000000000000040",
+        "004000000000000400",
+        "400400000000004000",
+        "000044444444440000",
+        "004000000000000000"]
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)            
+
+    return larger_img
 
 def spawn_enemy(x_pos, y_pos):
     img = make_enemy_sprite()
@@ -122,7 +361,7 @@ def spawn_enemy(x_pos, y_pos):
 def spawn_player(x_pos, y_pos):
     global player
     global player_image
-    pImg = make_player_sprite()
+    pImg = make_left_bub1()
     player_image = pImg
     player = canvas.create_image(x_pos, y_pos, image=pImg, anchor="center")
 
@@ -170,6 +409,6 @@ place_platform(WIDTH//2+70, 300, 80)
 place_platform(WIDTH//2-70, 300, 80)
 place_platform(WIDTH//2+210, 300, 80)
 place_platform(WIDTH//2-210, 300, 80)
-spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-4)
+spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
 
 root.mainloop()

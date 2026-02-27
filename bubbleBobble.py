@@ -22,9 +22,14 @@ PLATFORM_HEIGHT = 25
 enemy_list = []
 platform_list = []
 
+tick = True
+onPlatform = True
+
 enemy_images = []
 player_image = None
 bubble_images = []
+left_bubbles = []
+right_bubbles = []
 platform_img = []
 
 root = tk.Tk()
@@ -35,7 +40,7 @@ canvas.pack()
 
 player = canvas.create_image(0, 0)
 
-
+isFacingLeft = True
 def make_enemy_sprite():
     pattern = [
         "000000000000000000",
@@ -137,24 +142,24 @@ def make_platform(width):
 
 def make_right_bub1():
     pattern = [
-        "000000000000000400",
-        "000044444444440040",
-        "000400000000004000",
-        "004004040000000400",
-        "040040000000000040",
-        "040400000000040040",
-        "040400000000004040",
-        "040000000000004040",
-        "040000000000000040",
-        "040000000000000040",
-        "040000000000000040",
-        "040000000000000040",
-        "040000000000000040",
-        "040000000000000040",
-        "004000000000000400",
-        "400400000000004000",
-        "000044444444440000",
-        "004000000000000000"]
+        "000000005000000400",
+        "000000055500004010",
+        "000555555550000400",
+        "000055111111100004",
+        "000051111331130010",
+        "055511113301033000",
+        "005511113041043000",
+        "000511113001003000",
+        "055511113001003000",
+        "005511553311133500",
+        "000511001111111100",
+        "000511110011100100",
+        "000511111111111100",
+        "000511111133330000",
+        "005111113333333000",
+        "055111133333333000",
+        "511111222233323000",
+        "111112223333222200",]
                
     h = len(pattern)
     w = len(pattern[0])
@@ -348,7 +353,7 @@ def make_bubble_sprite():
             elif pattern[y][x] == "1":
                 img.put("#00ff15", (x,y))
 
-    larger_img = img.zoom(2, 2)            
+    larger_img = img.zoom(2, 2)
 
     return larger_img
 
@@ -365,10 +370,15 @@ def spawn_player(x_pos, y_pos):
     player_image = pImg
     player = canvas.create_image(x_pos, y_pos, image=pImg, anchor="center")
 
-def spawn_bubble(x_pos, y_pos):
+def spawn_bubble(event):
     img = make_bubble_sprite()
     bubble_images.append(img)
-    bubble = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
+    if isFacingLeft:
+        bubble = canvas.create_image(canvas.coords(player)[0]-20, canvas.coords(player)[1], image=img, anchor="center")
+        left_bubbles.append(bubble)
+    else:
+        bubble = canvas.create_image(canvas.coords(player)[0]+20, canvas.coords(player)[1], image=img, anchor="center")
+        right_bubbles.append(bubble)
 
 def place_platform(x_pos, y_pos, width):
     img = make_platform(width)
@@ -389,16 +399,58 @@ def move_right(event):
 def jump(event):
     canvas.move(player, 0, -PLATFORM_HEIGHT-30)
 
-def shoot_bubble(event):
-    spawn_bubble(canvas.coords(player)[0], canvas.coords(player)[1])
-    if isFacingLeft:
-        canvas.move(bubble_images[-1], -100, 0)
+def animate_bub():
+    global tick, onPlatform, player_image, player
+    tick = not tick
 
+    if isFacingLeft:
+        if tick:
+            new_img = make_left_bub1()
+        else:
+            new_img = make_left_bub2()
+    else:
+        if tick:
+            new_img = make_right_bub1()
+        else:
+            new_img = make_right_bub2()
+
+    player_image = new_img
+    canvas.itemconfig(player, image=new_img)
+
+    if right_bubbles:
+        for b in right_bubbles:
+            x1, y1, x2, y2 = canvas.bbox(b)
+            if x2>WIDTH:
+                canvas.delete(b)
+                right_bubbles.remove(b)
+            else:
+                canvas.move(b, 10, 0)
+    
+    if left_bubbles:
+        for b in left_bubbles:
+            x1, y1, x2, y2 = canvas.bbox(b)
+            if x2<0:
+                canvas.delete(b)
+                left_bubbles.remove(b)
+            else:
+                canvas.move(b, -10, 0)
+    
+    for p in platform_list:
+        x1, y1, x2, y2 = canvas.bbox(p)
+        px1, py1, px2, py2 = canvas.bbox(player)
+        if x1<px2<x2 and y1==py2:
+            onPlatform = True
+        else:
+            onPlatform = False
+
+
+
+    root.after(100, animate_bub)
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)
-root.bind("<space>", jump)
-root.bind("<b>", shoot_bubble)
+root.bind("<Up>", jump)
+root.bind("<space>", spawn_bubble)
 
 
 spawn_enemy(100, 100)
@@ -410,5 +462,7 @@ place_platform(WIDTH//2-70, 300, 80)
 place_platform(WIDTH//2+210, 300, 80)
 place_platform(WIDTH//2-210, 300, 80)
 spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
+
+animate_bub()
 
 root.mainloop()

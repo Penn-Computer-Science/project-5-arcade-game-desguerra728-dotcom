@@ -41,7 +41,9 @@ canvas.pack()
 player = canvas.create_image(0, 0)
 
 isFacingLeft = True
-def make_enemy_sprite():
+eIsFacingLeft = False
+
+def make_right_enemy1():
     pattern = [
         "000000000000000000",
         "000000000000000000",
@@ -85,26 +87,26 @@ def make_enemy_sprite():
 
     return larger_img
 
-def make_player_sprite():
+def make_right_enemy2():
     pattern = [
-        "000000005000000400",
-        "000000055500004010",
-        "000555555550000400",
-        "000055111111100004",
-        "000051111331130010",
-        "055511113301033000",
-        "005511113041043000",
-        "000511113001003000",
-        "055511113001003000",
-        "005511553311133500",
-        "000511001111111100",
-        "000511110011100100",
-        "000511111111111100",
-        "000511111133330000",
-        "005111113333333000",
-        "055111133333333000",
-        "511111222233323000",
-        "111112223333222200"
+        "000000000000000000",
+        "000000000000000000",
+        "000000222222000000",
+        "000222222222200000",
+        "002222222222220000",
+        "002222222222220000",
+        "002222222202020000",
+        "000200222202020000",
+        "033033022202020000",
+        "300300302222220000",
+        "300300300000000000",
+        "033033000000000000",
+        "000500555555555000",
+        "005555555555555000",
+        "0055555555554144400",
+        "000555555551444000",
+        "000001440011110000",
+        "000011114000000000"
     ]
     h = len(pattern)
     w = len(pattern[0])
@@ -124,8 +126,96 @@ def make_player_sprite():
                 img.put("#00d9ff", (x,y))
             elif pattern[y][x] == "1":
                 img.put("#00ff15", (x,y))
+    
+    larger_img = img.zoom(2, 2)
 
-    larger_img = img.zoom(2, 2)            
+    return larger_img
+
+def make_left_enemy1():
+    pattern = [
+        "000000000000000000",
+        "000000000000000000",
+        "000000000000000000",
+        "000000222222222200",
+        "000002222222222220",
+        "000002222222222220",
+        "000002222222222000",
+        "000002222222220330",
+        "000002222222203003",
+        "000002020222203003",
+        "000002020222220330",
+        "000002020222220330",
+        "000002222225553003",
+        "000055555555553003",
+        "000055555555541330",
+        "000005555555441110",
+        "000000044100411000",
+        "000004411110000000"
+    ]
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+    
+    larger_img = img.zoom(2, 2)
+
+    return larger_img
+
+def make_left_enemy2():
+    pattern = [
+        "000000000000000000",
+        "000000000000000000",
+        "000000222222000000",
+        "000022222222222200",
+        "000022222222222200",
+        "000020202222222200",
+        "000020202222002000",
+        "000020202220330330",
+        "000022222203003003",
+        "000000000003003003",
+        "000000000000330330",
+        "000555555555005000",
+        "000555555555555500",
+        "0044144555555555500",
+        "000444155555555000",
+        "000011110044100000",
+        "000011110044100000",
+        "000000000411110000"
+    ]
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+    
+    larger_img = img.zoom(2, 2)
 
     return larger_img
 
@@ -358,7 +448,7 @@ def make_bubble_sprite():
     return larger_img
 
 def spawn_enemy(x_pos, y_pos):
-    img = make_enemy_sprite()
+    img = make_right_enemy1()
     enemy_images.append(img)
     e = canvas.create_image(x_pos, y_pos, image=img, anchor="nw")
     enemy_list.append(e)
@@ -400,7 +490,7 @@ def jump(event):
     canvas.move(player, 0, -PLATFORM_HEIGHT-30)
 
 def animate_bub():
-    global tick, onPlatform, player_image, player
+    global tick, onPlatform, player_image, player, enemy_images, enemy_list
     tick = not tick
 
     if isFacingLeft:
@@ -425,7 +515,7 @@ def animate_bub():
                 right_bubbles.remove(b)
             else:
                 canvas.move(b, 10, 0)
-    
+
     if left_bubbles:
         for b in left_bubbles:
             x1, y1, x2, y2 = canvas.bbox(b)
@@ -434,14 +524,37 @@ def animate_bub():
                 left_bubbles.remove(b)
             else:
                 canvas.move(b, -10, 0)
-    
-    for p in platform_list:
-        x1, y1, x2, y2 = canvas.bbox(p)
+
+    for e in enemy_list:
+        if eIsFacingLeft:
+            if tick:
+                new_img = make_left_enemy1()
+                canvas.itemconfig(e, image=new_img)
+            else:
+                new_img = make_left_enemy2()
+                canvas.itemconfig(e, image=new_img)
+        else:
+            if tick:
+                new_img = make_right_enemy1()
+                canvas.itemconfig(e, image=new_img)
+            else:
+                new_img = make_right_enemy2()
+                canvas.itemconfig(e, image=new_img)
+        enemy_images.append(new_img)
+        canvas.itemconfig(e, image=new_img)
+
+
+    for p in platform_list[:]:
+        lx1, ly1, lx2, ly2 = canvas.bbox(p)
         px1, py1, px2, py2 = canvas.bbox(player)
-        if x1<px2<x2 and y1==py2:
+        if (lx1<px1<lx2 or lx1<px2<lx2) and (ly1+2)>py2>(ly1-2):
             onPlatform = True
+            break
         else:
             onPlatform = False
+
+    if onPlatform == False:
+        canvas.move(player, 0, 7)
 
 
 
@@ -454,6 +567,7 @@ root.bind("<space>", spawn_bubble)
 
 
 spawn_enemy(100, 100)
+spawn_enemy(150, 100)
 place_platform(WIDTH//2, 400, 100)
 place_platform(WIDTH//2+150, 350, 150)
 place_platform(WIDTH//2-150, 350, 150)
@@ -461,6 +575,7 @@ place_platform(WIDTH//2+70, 300, 80)
 place_platform(WIDTH//2-70, 300, 80)
 place_platform(WIDTH//2+210, 300, 80)
 place_platform(WIDTH//2-210, 300, 80)
+place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH)
 spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
 
 animate_bub()

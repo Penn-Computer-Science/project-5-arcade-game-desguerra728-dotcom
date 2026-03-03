@@ -14,6 +14,7 @@ catch enemies in bubble
     higher points scores when bursting several bubbles at the same time
 if touch enemy and not in bubble, dead
 '''
+import random
 import tkinter as tk
 isFacingLeft = True
 WIDTH = 600
@@ -487,10 +488,11 @@ def move_right(event):
     isFacingLeft = False
 
 def jump(event):
-    canvas.move(player, 0, -PLATFORM_HEIGHT-30)
+    if onPlatform:
+        canvas.move(player, 0, -PLATFORM_HEIGHT-70)
 
-def animate_bub():
-    global tick, onPlatform, player_image, player, enemy_images, enemy_list
+def game_loop():
+    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft
     tick = not tick
 
     if isFacingLeft:
@@ -514,7 +516,7 @@ def animate_bub():
                 canvas.delete(b)
                 right_bubbles.remove(b)
             else:
-                canvas.move(b, 10, 0)
+                canvas.move(b, 20, 0)
 
     if left_bubbles:
         for b in left_bubbles:
@@ -523,7 +525,7 @@ def animate_bub():
                 canvas.delete(b)
                 left_bubbles.remove(b)
             else:
-                canvas.move(b, -10, 0)
+                canvas.move(b, -20, 0)
 
     for e in enemy_list:
         if eIsFacingLeft:
@@ -543,41 +545,72 @@ def animate_bub():
         enemy_images.append(new_img)
         canvas.itemconfig(e, image=new_img)
 
-
-    for p in platform_list[:]:
+    for p in platform_list:
         lx1, ly1, lx2, ly2 = canvas.bbox(p)
         px1, py1, px2, py2 = canvas.bbox(player)
-        if (lx1<px1<lx2 or lx1<px2<lx2) and (ly1+2)>py2>(ly1-2):
+
+        if (lx1<px1<lx2 or lx1<px2<lx2) and (ly1+5)>py2>(ly1-5):
             onPlatform = True
             break
         else:
             onPlatform = False
 
     if onPlatform == False:
-        canvas.move(player, 0, 7)
+        canvas.move(player, 0, 9)
+    
+    # ai assisted
+    for e in enemy_list:
+        ex1, ey1, ex2, ey2 = canvas.bbox(e)
+        eOnPlatform = False
 
+        for p in platform_list:
+            lx1, ly1, lx2, ly2 = canvas.bbox(p)
+            if (lx1 < ex1 < lx2 or lx1 < ex2 < lx2) and (ly1 + 5) > ey2 > (ly1 - 5):
+                eOnPlatform = True
+                break
 
+        if not eOnPlatform:
+            canvas.move(e, 0, 9)
 
-    root.after(100, animate_bub)
+    for e in enemy_list:
+        ex1, ey1, ex2, ey2 = canvas.bbox(e)
+        px1, py1, px2, py2 = canvas.bbox(player)
+
+        e_moves = random.randint(0,1)
+        if e_moves == 1:
+            if ex1 < px1:
+                canvas.move(e, 10, 0)
+                eIsFacingLeft = False
+            elif ex1 > px1:
+                canvas.move(e, -10, 0)
+                eIsFacingLeft = True
+            
+            if ey2 > py1:
+                canvas.move(e, 0, -10)
+
+    root.after(70, game_loop)
+
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)
 root.bind("<Up>", jump)
 root.bind("<space>", spawn_bubble)
 
+place_platform(WIDTH//4-30, 160, WIDTH//2-30)
+place_platform(WIDTH-WIDTH//4+30, 160, WIDTH//2-30)
 
-spawn_enemy(100, 100)
-spawn_enemy(150, 100)
-place_platform(WIDTH//2, 400, 100)
-place_platform(WIDTH//2+150, 350, 150)
-place_platform(WIDTH//2-150, 350, 150)
-place_platform(WIDTH//2+70, 300, 80)
-place_platform(WIDTH//2-70, 300, 80)
-place_platform(WIDTH//2+210, 300, 80)
-place_platform(WIDTH//2-210, 300, 80)
-place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH)
+place_platform(WIDTH//4-30, 255, WIDTH//2-30)
+place_platform(WIDTH-WIDTH//4+30, 255, WIDTH//2-30)
+
+place_platform(WIDTH//4-30, 350, WIDTH//2-30)
+place_platform(WIDTH-WIDTH//4+30, 350, WIDTH//2-30)
+
+place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH) #bottom platform
+
 spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
+spawn_enemy(25, 10)
+spawn_enemy(75, 10)
 
-animate_bub()
+game_loop()
 
 root.mainloop()

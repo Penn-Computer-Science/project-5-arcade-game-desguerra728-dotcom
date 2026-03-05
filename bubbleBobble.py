@@ -22,6 +22,7 @@ HEIGHT = 450
 PLATFORM_HEIGHT = 25
 enemy_list = []
 platform_list = []
+captured_enemy_list = []
 
 tick = True
 onPlatform = True
@@ -32,6 +33,7 @@ bubble_images = []
 left_bubbles = []
 right_bubbles = []
 platform_img = []
+captured_enemy_imgs = []
 
 root = tk.Tk()
 root.title("Bubble Bobble")
@@ -448,6 +450,47 @@ def make_bubble_sprite():
 
     return larger_img
 
+def make_captured_enemy_sprite():
+    pattern = ["004000000000000000",
+        "040044444444440000",
+        "000400000000004000",
+        "004004242220000400",
+        "040042422202000040",
+        "040042220220200040",
+        "040022222022200040",
+        "040422222222040040",
+        "040322222200540040",
+        "043032000005450040",
+        "040303555555544040",
+        "040030355555111040",
+        "040403555550010040",
+        "040040114400000040",
+        "004004111400000400",
+        "000400000000004040",
+        "000044444444440404",
+        "000000000000000040"]
+    
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)
+    return larger_img
+
 def spawn_enemy(x_pos, y_pos):
     img = make_right_enemy1()
     enemy_images.append(img)
@@ -490,6 +533,12 @@ def move_right(event):
 def jump(event):
     if onPlatform:
         canvas.move(player, 0, -PLATFORM_HEIGHT-70)
+
+def spawn_captured_enemy(x_pos, y_pos):
+    img = make_captured_enemy_sprite()
+    captured_enemy_imgs.append(img)
+    ce = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
+    captured_enemy_list.append(ce)
 
 def game_loop():
     global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft
@@ -572,7 +621,6 @@ def game_loop():
         if not eOnPlatform:
             canvas.move(e, 0, 9)
 
-    for e in enemy_list:
         ex1, ey1, ex2, ey2 = canvas.bbox(e)
         px1, py1, px2, py2 = canvas.bbox(player)
 
@@ -585,8 +633,32 @@ def game_loop():
                 canvas.move(e, -10, 0)
                 eIsFacingLeft = True
             
-            if ey2 > py1:
-                canvas.move(e, 0, -10)
+            if ey1 > py1 and eOnPlatform:
+                canvas.move(e, 0, -PLATFORM_HEIGHT-70)
+
+    for e in enemy_list[:]:
+        ex1, ey1, ex2, ey2 = canvas.bbox(e)
+        for b in left_bubbles[:]:
+            bx1, by1, bx2, by2 = canvas.bbox(b)
+            if ex1<bx2<ex2 and (by1<ey2<by2 or by1<ey1<by2 or by1==ey1):
+                canvas.delete(b)
+                left_bubbles.remove(b)
+                spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
+                canvas.delete(e)
+                enemy_list.remove(e)
+
+        for a in right_bubbles[:]:
+            ax1, ay1, ax2, ay2 = canvas.bbox(a)
+            if ex2>ax1>ex1 and (ay1<ey2<ay2 or ay1<ey1<ay2 or ay1==ey1):
+                canvas.delete(a)
+                right_bubbles.remove(a)
+                spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
+                canvas.delete(e)
+                enemy_list.remove(e)
+    
+    if captured_enemy_list:
+        for ce in captured_enemy_list:
+            canvas.move(ce, 0, -10)
 
     root.after(70, game_loop)
 
@@ -605,7 +677,7 @@ place_platform(WIDTH-WIDTH//4+30, 255, WIDTH//2-30)
 place_platform(WIDTH//4-30, 350, WIDTH//2-30)
 place_platform(WIDTH-WIDTH//4+30, 350, WIDTH//2-30)
 
-place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH) #bottom platform
+place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH*4) #bottom platform
 
 spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
 spawn_enemy(25, 10)

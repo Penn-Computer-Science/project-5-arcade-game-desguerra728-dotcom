@@ -24,6 +24,8 @@ enemy_list = []
 platform_list = []
 captured_enemy_list = []
 
+counter = 0
+points = 0
 tick = True
 onPlatform = True
 
@@ -450,7 +452,7 @@ def make_bubble_sprite():
 
     return larger_img
 
-def make_captured_enemy_sprite():
+def make_captured_enemy_sprite1():
     pattern = ["004000000000000000",
         "040044444444440000",
         "000400000000004000",
@@ -469,6 +471,47 @@ def make_captured_enemy_sprite():
         "000400000000004040",
         "000044444444440404",
         "000000000000000040"]
+    
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)
+    return larger_img
+
+def make_captured_enemy_sprite2():
+    pattern = ["000400000000000000",
+    "004044444444440000",
+    "000400000000004000",
+    "004000424222000400",
+    "040004242220200040",
+    "040004222022020040",
+    "040002222202220040",
+    "040042222222204040",
+    "040032222220054040",
+    "040303200000545040",
+    "040030355555554440",
+    "040003035555511140",
+    "040040355555001040",
+    "040004011440000040",
+    "004000411140000400",
+    "000400000000004004",
+    "000044444444440040",
+    "000000000000000004"]
     
     h = len(pattern)
     w = len(pattern[0])
@@ -535,14 +578,25 @@ def jump(event):
         canvas.move(player, 0, -PLATFORM_HEIGHT-70)
 
 def spawn_captured_enemy(x_pos, y_pos):
-    img = make_captured_enemy_sprite()
+    img = make_captured_enemy_sprite1()
     captured_enemy_imgs.append(img)
     ce = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
     captured_enemy_list.append(ce)
 
 def game_loop():
-    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft
+    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft, counter, points
     tick = not tick
+
+
+    canvas.create_rectangle(0, 0, WIDTH, 30, fill="#240141")
+    canvas.create_text(50, 15, text = "SCORE: " + str(points), fill = "#ffffff", font = ("Arial", 12, "bold"))
+
+    px1, py1, px2, py2 = canvas.bbox(player)
+    
+    if counter>10000//70:
+        counter = 0
+    else:
+        counter += 1
 
     if isFacingLeft:
         if tick:
@@ -576,7 +630,60 @@ def game_loop():
             else:
                 canvas.move(b, -20, 0)
 
+    for p in platform_list:
+        lx1, ly1, lx2, ly2 = canvas.bbox(p)
+
+        if (lx1<px1<lx2 or lx1<px2<lx2) and (ly1+5)>py2>(ly1-5):
+            onPlatform = True
+            break
+        else:
+            onPlatform = False
+
+    if onPlatform == False:
+        canvas.move(player, 0, 9)
+    
     for e in enemy_list:
+        ex1, ey1, ex2, ey2 = canvas.bbox(e)
+        eOnPlatform = False
+
+        for p in platform_list:
+            lx1, ly1, lx2, ly2 = canvas.bbox(p)
+            if (lx1 < ex1 < lx2 or lx1 < ex2 < lx2) and (ly1 + 5) > ey2 > (ly1 - 5):
+                eOnPlatform = True
+                break
+
+        if not eOnPlatform:
+            canvas.move(e, 0, 9)
+
+        ex1, ey1, ex2, ey2 = canvas.bbox(e)
+        px1, py1, px2, py2 = canvas.bbox(player)
+
+        if 0<counter<5000//70 and enemy_list.index(e)%2==0:
+            if ex1 < px1:
+                canvas.move(e, -7, 0)
+                eIsFacingLeft = True
+            elif ex1 > px1:
+                canvas.move(e, 7, 0)
+                eIsFacingLeft = False
+            
+            if ey1 > py2:
+                canvas.move(e, 0, -PLATFORM_HEIGHT-70)
+        else:
+            if ex1 < px1:
+                canvas.move(e, 7, 0)
+                eIsFacingLeft = False
+            elif ex1 > px1:
+                canvas.move(e, -7, 0)
+                eIsFacingLeft = True
+            
+            if ey1 > py2:
+                canvas.move(e, 0, -PLATFORM_HEIGHT-70)
+
+        if ex2 < -50:
+            canvas.coords(e, 600, ey1)
+        elif ex1 > 650:
+            canvas.coords(e, -600, ey1)
+
         if eIsFacingLeft:
             if tick:
                 new_img = make_left_enemy1()
@@ -594,47 +701,6 @@ def game_loop():
         enemy_images.append(new_img)
         canvas.itemconfig(e, image=new_img)
 
-    for p in platform_list:
-        lx1, ly1, lx2, ly2 = canvas.bbox(p)
-        px1, py1, px2, py2 = canvas.bbox(player)
-
-        if (lx1<px1<lx2 or lx1<px2<lx2) and (ly1+5)>py2>(ly1-5):
-            onPlatform = True
-            break
-        else:
-            onPlatform = False
-
-    if onPlatform == False:
-        canvas.move(player, 0, 9)
-    
-    # ai assisted
-    for e in enemy_list:
-        ex1, ey1, ex2, ey2 = canvas.bbox(e)
-        eOnPlatform = False
-
-        for p in platform_list:
-            lx1, ly1, lx2, ly2 = canvas.bbox(p)
-            if (lx1 < ex1 < lx2 or lx1 < ex2 < lx2) and (ly1 + 5) > ey2 > (ly1 - 5):
-                eOnPlatform = True
-                break
-
-        if not eOnPlatform:
-            canvas.move(e, 0, 9)
-
-        ex1, ey1, ex2, ey2 = canvas.bbox(e)
-        px1, py1, px2, py2 = canvas.bbox(player)
-
-        e_moves = random.randint(0,1)
-        if e_moves == 1:
-            if ex1 < px1:
-                canvas.move(e, 10, 0)
-                eIsFacingLeft = False
-            elif ex1 > px1:
-                canvas.move(e, -10, 0)
-                eIsFacingLeft = True
-            
-            if ey1 > py1 and eOnPlatform:
-                canvas.move(e, 0, -PLATFORM_HEIGHT-70)
 
     for e in enemy_list[:]:
         ex1, ey1, ex2, ey2 = canvas.bbox(e)
@@ -658,7 +724,20 @@ def game_loop():
     
     if captured_enemy_list:
         for ce in captured_enemy_list:
-            canvas.move(ce, 0, -10)
+            if tick:
+                new_img = make_captured_enemy_sprite1()
+            else:
+                new_img = make_captured_enemy_sprite2()
+            canvas.itemconfig(ce, image=new_img)
+            captured_enemy_imgs.append(new_img)
+            cx1, cy1, cx2, cy2 = canvas.bbox(ce)
+            if cy1>30:
+                canvas.move(ce, 0, -5)
+        
+            if (cx1<px2<cx2 or cx2>px1>cx1) and (py1<cy2<py2 or py1<cy1<py2 or py1==cy1):
+                canvas.delete(ce)
+                captured_enemy_list.remove(ce)
+                points += 10
 
     root.after(70, game_loop)
 

@@ -512,7 +512,7 @@ def make_captured_enemy_sprite2():
     "000400000000004004",
     "000044444444440040",
     "000000000000000004"]
-    
+
     h = len(pattern)
     w = len(pattern[0])
     img = tk.PhotoImage(width = w, height = h)
@@ -533,6 +533,64 @@ def make_captured_enemy_sprite2():
 
     larger_img = img.zoom(2, 2)
     return larger_img
+
+def make_dead_p_sprite1():
+    pattern = ["000000000000010000",
+        "000004000004000000",
+        "000000000000400000",
+        "000000000010000010",
+        "000000000000000400",
+        "000100000000000000",
+        "001040001000000000",
+        "000400000400000000",
+        "000000001000000000",
+        "040000000000000000",
+        "000000000000000000",
+        "000000000000220000",
+        "000111133331120000",
+        "001111111111110000",
+        "511111111111110000",
+        "555555111111111100",
+        "055515555555111550",
+        "015111551551555510"]
+    
+def make_dead_p_sprite2():
+    pattern = ["000000400000400000",
+        "000000000000040000",
+        "000000000001000001",
+        "000000000000000040",
+        "000010000000000000",
+        "000104000100000000",
+        "000040000040000000",
+        "000000000100000000",
+        "004000000000000000",
+        "000000000000000000",
+        "000000000000000000",
+        "000000000000220000",
+        "000111133331120000",
+        "001111111111110000",
+        "511111111111110000",
+        "555555111111111100",
+        "055515555555111550",
+        "015111551551555510"]
+
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
 
 def spawn_enemy(x_pos, y_pos):
     img = make_right_enemy1()
@@ -582,6 +640,10 @@ def spawn_captured_enemy(x_pos, y_pos):
     captured_enemy_imgs.append(img)
     ce = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
     captured_enemy_list.append(ce)
+
+def spawn_dead_player(x_pos, y_pos):
+    img=make_dead_p_sprite1()
+    dead_p_img
 
 def game_loop():
     global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft, counter, points
@@ -701,8 +763,6 @@ def game_loop():
         enemy_images.append(new_img)
         canvas.itemconfig(e, image=new_img)
 
-
-    for e in enemy_list[:]:
         ex1, ey1, ex2, ey2 = canvas.bbox(e)
         for b in left_bubbles[:]:
             bx1, by1, bx2, by2 = canvas.bbox(b)
@@ -721,6 +781,10 @@ def game_loop():
                 spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
                 canvas.delete(e)
                 enemy_list.remove(e)
+        
+        if (ex1<px1<ex2 or ex2<px2<ex1) and (ey1<py2<ey2 or ey1<py1<ey2 or py1==ey1):
+            canvas.delete(player)
+            
     
     if captured_enemy_list:
         for ce in captured_enemy_list:
@@ -739,6 +803,12 @@ def game_loop():
                 captured_enemy_list.remove(ce)
                 points += 10
 
+    if px1<-50:
+        canvas.coords(player, 600, py1)
+    if px2>650:
+        canvas.coords(player, 0, py1)
+
+
     root.after(70, game_loop)
 
 
@@ -747,7 +817,7 @@ root.bind("<Right>", move_right)
 root.bind("<Up>", jump)
 root.bind("<space>", spawn_bubble)
 
-place_platform(WIDTH//4-30, 160, WIDTH//2-30)
+place_platform(WIDTH//4-30, 160, WIDTH//2-20)
 place_platform(WIDTH-WIDTH//4+30, 160, WIDTH//2-30)
 
 place_platform(WIDTH//4-30, 255, WIDTH//2-30)

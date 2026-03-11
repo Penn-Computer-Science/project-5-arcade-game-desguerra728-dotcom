@@ -28,6 +28,9 @@ counter = 0
 points = 0
 tick = True
 onPlatform = True
+alive = True
+reset = False
+gameover_text = None
 
 enemy_images = []
 player_image = None
@@ -36,6 +39,7 @@ left_bubbles = []
 right_bubbles = []
 platform_img = []
 captured_enemy_imgs = []
+dead_img = None
 
 root = tk.Tk()
 root.title("Bubble Bobble")
@@ -553,6 +557,26 @@ def make_dead_p_sprite1():
         "555555111111111100",
         "055515555555111550",
         "015111551551555510"]
+    h = len(pattern)
+    w = len(pattern[0])
+    img = tk.PhotoImage(width = w, height = h)
+    for y in range(h):
+        for x in range(w):
+            if pattern[y][x] == "0":
+                img.put("#000000", (x,y))
+            elif pattern[y][x] == "2":
+                img.put("#ff8800", (x,y))
+            elif pattern[y][x] == "3":
+                img.put("#ffffff", (x,y))
+            elif pattern[y][x] == "5":
+                img.put("#ff0000", (x,y))
+            elif pattern[y][x] == "4":
+                img.put("#00d9ff", (x,y))
+            elif pattern[y][x] == "1":
+                img.put("#00ff15", (x,y))
+
+    larger_img = img.zoom(2, 2)
+    return larger_img
     
 def make_dead_p_sprite2():
     pattern = ["000000400000400000",
@@ -592,6 +616,9 @@ def make_dead_p_sprite2():
             elif pattern[y][x] == "1":
                 img.put("#00ff15", (x,y))
 
+    larger_img = img.zoom(2, 2)
+    return larger_img
+
 def spawn_enemy(x_pos, y_pos):
     img = make_right_enemy1()
     enemy_images.append(img)
@@ -623,16 +650,18 @@ def place_platform(x_pos, y_pos, width):
     
 def move_left(event):
     global isFacingLeft
-    canvas.move(player, -15, 0)
-    isFacingLeft = True
+    if alive:
+        canvas.move(player, -15, 0)
+        isFacingLeft = True
 
 def move_right(event):
     global isFacingLeft
-    canvas.move(player, 15, 0)
-    isFacingLeft = False
+    if alive:
+        canvas.move(player, 15, 0)
+        isFacingLeft = False
 
 def jump(event):
-    if onPlatform:
+    if onPlatform and alive:
         canvas.move(player, 0, -PLATFORM_HEIGHT-70)
 
 def spawn_captured_enemy(x_pos, y_pos):
@@ -641,14 +670,9 @@ def spawn_captured_enemy(x_pos, y_pos):
     ce = canvas.create_image(x_pos, y_pos, image=img, anchor="center")
     captured_enemy_list.append(ce)
 
-def spawn_dead_player(x_pos, y_pos):
-    img=make_dead_p_sprite1()
-    dead_p_img
-
 def game_loop():
-    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft, counter, points
+    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft, counter, points, alive, gameover_text
     tick = not tick
-
 
     canvas.create_rectangle(0, 0, WIDTH, 30, fill="#240141")
     canvas.create_text(50, 15, text = "SCORE: " + str(points), fill = "#ffffff", font = ("Arial", 12, "bold"))
@@ -660,16 +684,23 @@ def game_loop():
     else:
         counter += 1
 
-    if isFacingLeft:
-        if tick:
-            new_img = make_left_bub1()
+    if alive:
+        if isFacingLeft:
+            if tick:
+                new_img = make_left_bub1()
+            else:
+                new_img = make_left_bub2()
         else:
-            new_img = make_left_bub2()
+            if tick:
+                new_img = make_right_bub1()
+            else:
+                new_img = make_right_bub2()
+
     else:
         if tick:
-            new_img = make_right_bub1()
+            new_img = make_dead_p_sprite1()
         else:
-            new_img = make_right_bub2()
+            new_img = make_dead_p_sprite2()
 
     player_image = new_img
     canvas.itemconfig(player, image=new_img)
@@ -720,29 +751,32 @@ def game_loop():
         ex1, ey1, ex2, ey2 = canvas.bbox(e)
         px1, py1, px2, py2 = canvas.bbox(player)
 
-        if 0<counter<5000//70 and enemy_list.index(e)%2==0:
-            if ex1 < px1:
-                canvas.move(e, -7, 0)
-                eIsFacingLeft = True
-            elif ex1 > px1:
-                canvas.move(e, 7, 0)
-                eIsFacingLeft = False
-            
-            if ey1 > py2:
-                canvas.move(e, 0, -PLATFORM_HEIGHT-70)
+        if alive:
+            if 0<counter<5000//70 and enemy_list.index(e)%2==0:
+                if ex1 < px1:
+                    canvas.move(e, -7, 0)
+                    eIsFacingLeft = True
+                elif ex1 > px1:
+                    canvas.move(e, 7, 0)
+                    eIsFacingLeft = False
+                
+                if ey1 > py2:
+                    canvas.move(e, 0, -PLATFORM_HEIGHT-70)
+            else:
+                if ex1 < px1:
+                    canvas.move(e, 7, 0)
+                    eIsFacingLeft = False
+                elif ex1 > px1:
+                    canvas.move(e, -7, 0)
+                    eIsFacingLeft = True
+                
+                if ey1 > py2:
+                    canvas.move(e, 0, -PLATFORM_HEIGHT-70)
         else:
-            if ex1 < px1:
-                canvas.move(e, 7, 0)
-                eIsFacingLeft = False
-            elif ex1 > px1:
-                canvas.move(e, -7, 0)
-                eIsFacingLeft = True
-            
-            if ey1 > py2:
-                canvas.move(e, 0, -PLATFORM_HEIGHT-70)
-
+            canvas.move(e, -7, 0)
+            eIsFacingLeft = True
         if ex2 < -50:
-            canvas.coords(e, 600, ey1)
+                canvas.coords(e, 600, ey1)
         elif ex1 > 650:
             canvas.coords(e, -600, ey1)
 
@@ -783,9 +817,9 @@ def game_loop():
                 enemy_list.remove(e)
         
         if (ex1<px1<ex2 or ex2<px2<ex1) and (ey1<py2<ey2 or ey1<py1<ey2 or py1==ey1):
-            canvas.delete(player)
-            
-    
+            gameover_text = canvas.create_text(WIDTH//2, HEIGHT//2, text = "Game Over", fill = "#ff0000", font = ("Arial", 20, "bold"))
+            alive = False
+        
     if captured_enemy_list:
         for ce in captured_enemy_list:
             if tick:
@@ -811,6 +845,36 @@ def game_loop():
 
     root.after(70, game_loop)
 
+def reset():
+    global alive, points, player_image, gameover_text, counter
+    alive = True
+    points = 0
+    counter = 0
+
+    canvas.create_rectangle(0, 0, WIDTH, HEIGHT, fill="black")
+
+    canvas.delete(player)
+    player_image = None
+    
+    if enemy_list:
+        for e in enemy_list:
+            canvas.delete(e)
+    enemy_list.clear()
+    enemy_images.clear()
+
+    if captured_enemy_list:
+        for ce in captured_enemy_list:
+            canvas.delete(ce)
+    captured_enemy_list.clear()
+    captured_enemy_imgs.clear()
+
+    spawn_enemy(25, 10)
+    spawn_enemy(75, 10)
+    spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
+
+reset_button = tk.Button(root, text = "reset", command = reset, bg = "#2B2B2B", font = ("Courier", 10))
+reset_button.pack()
+
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)
@@ -833,5 +897,4 @@ spawn_enemy(25, 10)
 spawn_enemy(75, 10)
 
 game_loop()
-
 root.mainloop()

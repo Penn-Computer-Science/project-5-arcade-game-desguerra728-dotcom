@@ -857,7 +857,7 @@ def game_loop():
         canvas.coords(player, 0, py1)
 
 
-    root.after(70, game_loop)
+    root.after(60, game_loop)
 
 def reset():
     global seen_controls, alive, points, player_image, counter, resetting, bubble_images, left_bubbles, right_bubbles, enemy_images, enemy_list, captured_enemy_imgs, captured_enemy_list
@@ -940,7 +940,6 @@ canvas.create_text(WIDTH//2, 132, text="BoBBLE", fill="#ff00ea", font=("Comic Sa
 canvas.create_text(WIDTH//2, 180, text="Capture the Bubble Busters in a", fill="#ffa857", font=("Ink Free", 15, "bold"))
 canvas.create_text(WIDTH//2, 200, text="bubble before they catch you,", fill="#ffa857", font=("Ink Free", 15, "bold"))
 canvas.create_text(WIDTH//2, 220, text="and pop them to earn points!", fill="#ffa857", font=("Ink Free", 15, "bold"))
-
 
 canvas.create_text(WIDTH//2, 260, text="Controls:", fill="#ffffff", font=("Gabriola", 15, "bold"))
 canvas.create_text(WIDTH//2, 280, text="← → to move", fill="#ffffff", font=("Gabriola", 15))

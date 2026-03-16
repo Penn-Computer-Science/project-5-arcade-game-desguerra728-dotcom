@@ -7,4 +7,4 @@
 - - ↑ to jump
 - - Space-bar to shoot bubbles
 - **Description:**
-Capture the Bubble Busters in abubble and pop them to earn points!
+Capture the Bubble Busters in a bubble and pop them to earn points!

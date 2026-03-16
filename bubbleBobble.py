@@ -31,7 +31,6 @@ tick = True
 onPlatform = True
 alive = True
 resetting = True
-gameover_text = None
 enemy_speed = 7
 seen_controls = False
 
@@ -675,7 +674,7 @@ def spawn_captured_enemy(x_pos, y_pos):
     captured_enemy_list.append(ce)
 
 def game_loop():
-    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft, counter, points, alive, gameover_text, enemy_speed
+    global tick, onPlatform, player_image, player, enemy_images, enemy_list, eIsFacingLeft, counter, points, alive, enemy_speed
     tick = not tick
     if resetting == True:
         return
@@ -832,7 +831,7 @@ def game_loop():
                 enemy_list.remove(e)
         
         if (ex1<px1<ex2 or ex2<px2<ex1) and (ey1<py2<ey2 or ey1<py1<ey2 or py1==ey1):
-            gameover_text = canvas.create_text(WIDTH//2, HEIGHT//2, text = "Game Over", fill = "#ff0000", font = ("Arial", 20, "bold"))
+            canvas.create_text(WIDTH//2, HEIGHT//2, text = "Game Over", fill = "#ff0000", font = ("Arial", 20, "bold"))
             alive = False
         
     if captured_enemy_list:
@@ -861,7 +860,7 @@ def game_loop():
     root.after(70, game_loop)
 
 def reset():
-    global seen_controls, alive, points, player_image, gameover_text, counter, resetting, bubble_images, left_bubbles, right_bubbles, enemy_images, enemy_list, captured_enemy_imgs, captured_enemy_list
+    global seen_controls, alive, points, player_image, counter, resetting, bubble_images, left_bubbles, right_bubbles, enemy_images, enemy_list, captured_enemy_imgs, captured_enemy_list
     if seen_controls == False:
         seen_controls = True
         canvas.create_rectangle(0, 0, WIDTH, HEIGHT, fill="Black")
@@ -948,5 +947,4 @@ canvas.create_text(WIDTH//2, 320, text="Space-bar to shoot bubbles", fill="#ffff
 
 canvas.create_text(WIDTH//2, 370, text="Click Start Game to Begin!", fill="#80fc8a", font=("MV Boli", 13))
 
-print(font.families())
 root.mainloop()

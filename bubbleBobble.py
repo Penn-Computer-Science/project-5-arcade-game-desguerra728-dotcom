@@ -29,7 +29,7 @@ points = 0
 tick = True
 onPlatform = True
 alive = True
-resetting = False
+resetting = True
 gameover_text = None
 enemy_speed = 7
 
@@ -898,11 +898,17 @@ def reset():
 
     resetting = not resetting
 
+    if resetting:
+        reset_button.config(text = "Start Game", bg = "green")
+    else:
+        reset_button.config(text = "End Game", bg = "red")
+
     game_loop()
 
 
-reset_button = tk.Button(root, text = "End Game", command = reset, bg = "#7151FF", font = ("Courier", 10))
+reset_button = tk.Button(root, text = "Start Game", command = reset, bg = "green", font = ("Courier", 10))
 reset_button.pack()
+
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)

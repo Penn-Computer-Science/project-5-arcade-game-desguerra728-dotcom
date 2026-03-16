@@ -934,11 +934,13 @@ root.bind("<Right>", move_right)
 root.bind("<Up>", jump)
 root.bind("<space>", spawn_bubble)
 
-canvas.create_text(WIDTH//2, 100, text="BuBBLE", fill="#ff00ea", font=("Arial Rounded MT Bold", 50, "bold"))
-canvas.create_text(WIDTH//2, 152, text="BoBBLE", fill="#ff00ea", font=("Comic Sans MS", 50, "bold"))
+canvas.create_text(WIDTH//2, 80, text="BuBBLE", fill="#ff00ea", font=("Arial Rounded MT Bold", 50, "bold"))
+canvas.create_text(WIDTH//2, 132, text="BoBBLE", fill="#ff00ea", font=("Comic Sans MS", 50, "bold"))
 
-canvas.create_text(WIDTH//2, 200, text="Capture the Bubble Busters in a", fill="#ffa857", font=("Ink Free", 15, "bold"))
-canvas.create_text(WIDTH//2, 220, text="bubble and pop them to earn points!", fill="#ffa857", font=("Ink Free", 15, "bold"))
+canvas.create_text(WIDTH//2, 180, text="Capture the Bubble Busters in a", fill="#ffa857", font=("Ink Free", 15, "bold"))
+canvas.create_text(WIDTH//2, 200, text="bubble before they catch you,", fill="#ffa857", font=("Ink Free", 15, "bold"))
+canvas.create_text(WIDTH//2, 220, text="and pop them to earn points!", fill="#ffa857", font=("Ink Free", 15, "bold"))
+
 
 canvas.create_text(WIDTH//2, 260, text="Controls:", fill="#ffffff", font=("Gabriola", 15, "bold"))
 canvas.create_text(WIDTH//2, 280, text="← → to move", fill="#ffffff", font=("Gabriola", 15))

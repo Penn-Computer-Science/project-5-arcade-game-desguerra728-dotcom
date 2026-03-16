@@ -16,6 +16,7 @@ if touch enemy and not in bubble, dead
 '''
 import random
 import tkinter as tk
+from tkinter import font
 isFacingLeft = True
 WIDTH = 600
 HEIGHT = 450
@@ -32,6 +33,7 @@ alive = True
 resetting = True
 gameover_text = None
 enemy_speed = 7
+seen_controls = False
 
 enemy_images = []
 player_image = None
@@ -636,12 +638,13 @@ def spawn_player(x_pos, y_pos):
 def spawn_bubble(event):
     img = make_bubble_sprite()
     bubble_images.append(img)
-    if isFacingLeft:
-        bubble = canvas.create_image(canvas.coords(player)[0]-20, canvas.coords(player)[1], image=img, anchor="center")
-        left_bubbles.append(bubble)
-    else:
-        bubble = canvas.create_image(canvas.coords(player)[0]+20, canvas.coords(player)[1], image=img, anchor="center")
-        right_bubbles.append(bubble)
+    if alive:
+        if isFacingLeft:
+            bubble = canvas.create_image(canvas.coords(player)[0]-20, canvas.coords(player)[1], image=img, anchor="center")
+            left_bubbles.append(bubble)
+        else:
+            bubble = canvas.create_image(canvas.coords(player)[0]+20, canvas.coords(player)[1], image=img, anchor="center")
+            right_bubbles.append(bubble)
 
 def place_platform(x_pos, y_pos, width):
     img = make_platform(width)
@@ -858,7 +861,11 @@ def game_loop():
     root.after(70, game_loop)
 
 def reset():
-    global alive, points, player_image, gameover_text, counter, resetting
+    global seen_controls, alive, points, player_image, gameover_text, counter, resetting, bubble_images, left_bubbles, right_bubbles, enemy_images, enemy_list, captured_enemy_imgs, captured_enemy_list
+    if seen_controls == False:
+        seen_controls = True
+        canvas.create_rectangle(0, 0, WIDTH, HEIGHT, fill="Black")
+
     if resetting:
         place_platform(WIDTH//4-30, 160, WIDTH//2-20)
         place_platform(WIDTH-WIDTH//4+30, 160, WIDTH//2-30)
@@ -892,6 +899,19 @@ def reset():
         captured_enemy_list.clear()
         captured_enemy_imgs.clear()
 
+        if right_bubbles:
+            for b in right_bubbles:
+                canvas.delete(b)
+        right_bubbles.clear()
+
+        if left_bubbles:    
+            for b in left_bubbles:
+                canvas.delete(b)
+        left_bubbles.clear()
+
+        if bubble_images:
+            bubble_images.clear()
+
         spawn_enemy(25, 10)
         spawn_enemy(75, 10)
         spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
@@ -915,5 +935,18 @@ root.bind("<Right>", move_right)
 root.bind("<Up>", jump)
 root.bind("<space>", spawn_bubble)
 
-# game_loop()
+canvas.create_text(WIDTH//2, 100, text="BuBBLE", fill="#ff00ea", font=("Arial Rounded MT Bold", 50, "bold"))
+canvas.create_text(WIDTH//2, 152, text="BoBBLE", fill="#ff00ea", font=("Comic Sans MS", 50, "bold"))
+
+canvas.create_text(WIDTH//2, 200, text="Capture the Bubble Busters in a", fill="#ffa857", font=("Ink Free", 15, "bold"))
+canvas.create_text(WIDTH//2, 220, text="bubble and pop them to earn points!", fill="#ffa857", font=("Ink Free", 15, "bold"))
+
+canvas.create_text(WIDTH//2, 260, text="Controls:", fill="#ffffff", font=("Gabriola", 15, "bold"))
+canvas.create_text(WIDTH//2, 280, text="← → to move", fill="#ffffff", font=("Gabriola", 15))
+canvas.create_text(WIDTH//2, 300, text="↑ to jump", fill="#ffffff", font=("Gabriola", 15))
+canvas.create_text(WIDTH//2, 320, text="Space-bar to shoot bubbles", fill="#ffffff", font=("Gabriola", 15))
+
+canvas.create_text(WIDTH//2, 370, text="Click Start Game to Begin!", fill="#80fc8a", font=("MV Boli", 13))
+
+print(font.families())
 root.mainloop()

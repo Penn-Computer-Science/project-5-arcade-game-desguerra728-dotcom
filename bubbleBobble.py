@@ -859,12 +859,7 @@ def game_loop():
 
 def reset():
     global alive, points, player_image, gameover_text, counter, resetting
-    resetting = True
-
-def play():
-    global resetting, alive, points, counter, player_image
     if resetting:
-        resetting = False
         place_platform(WIDTH//4-30, 160, WIDTH//2-20)
         place_platform(WIDTH-WIDTH//4+30, 160, WIDTH//2-30)
 
@@ -901,33 +896,18 @@ def play():
         spawn_enemy(75, 10)
         spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
 
-        game_loop()
+    resetting = not resetting
+
+    game_loop()
+
 
 reset_button = tk.Button(root, text = "End Game", command = reset, bg = "#7151FF", font = ("Courier", 10))
 reset_button.pack()
-
-play_button = tk.Button(root, text = "Start Game", command = play, bg = "#7151FF", font = ("Courier", 10))
-play_button.pack()
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)
 root.bind("<Up>", jump)
 root.bind("<space>", spawn_bubble)
 
-place_platform(WIDTH//4-30, 160, WIDTH//2-20)
-place_platform(WIDTH-WIDTH//4+30, 160, WIDTH//2-30)
-
-place_platform(WIDTH//4-30, 255, WIDTH//2-30)
-place_platform(WIDTH-WIDTH//4+30, 255, WIDTH//2-30)
-
-place_platform(WIDTH//4-30, 350, WIDTH//2-30)
-place_platform(WIDTH-WIDTH//4+30, 350, WIDTH//2-30)
-
-place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH*4) #bottom platform
-
-spawn_player(WIDTH//2, 400-PLATFORM_HEIGHT//2-18)
-spawn_enemy(25, 10)
-spawn_enemy(75, 10)
-
-game_loop()
+# game_loop()
 root.mainloop()

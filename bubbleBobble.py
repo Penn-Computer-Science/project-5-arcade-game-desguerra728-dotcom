@@ -654,13 +654,13 @@ def place_platform(x_pos, y_pos, width):
 def move_left(event):
     global isFacingLeft
     if alive:
-        canvas.move(player, -15, 0)
+        canvas.move(player, -19, 0)
         isFacingLeft = True
 
 def move_right(event):
     global isFacingLeft
     if alive:
-        canvas.move(player, 15, 0)
+        canvas.move(player, 19, 0)
         isFacingLeft = False
 
 def jump(event):
@@ -693,7 +693,7 @@ def game_loop():
 
     enemy_speed = 7 + points/10
     
-    if counter>10000//70:
+    if counter>10000//60:
         counter = 0
     else:
         counter += 1
@@ -766,7 +766,7 @@ def game_loop():
         px1, py1, px2, py2 = canvas.bbox(player)
 
         if alive:
-            if 0<counter<5000//70 and enemy_list.index(e)%2==0:
+            if 0<counter<5000//60 and enemy_list.index(e)%2==0:
                 if ex1 < px1:
                     canvas.move(e, -enemy_speed, 0)
                     eIsFacingLeft = True
@@ -860,12 +860,9 @@ def game_loop():
     root.after(60, game_loop)
 
 def reset():
-    global seen_controls, alive, points, player_image, counter, resetting, bubble_images, left_bubbles, right_bubbles, enemy_images, enemy_list, captured_enemy_imgs, captured_enemy_list
+    global seen_controls, alive, points, player_image, counter, resetting, bubble_images, left_bubbles, right_bubbles, enemy_images, enemy_list, captured_enemy_imgs, captured_enemy_list, platform_list
     if seen_controls == False:
-        seen_controls = True
         canvas.create_rectangle(0, 0, WIDTH, HEIGHT, fill="Black")
-
-    if resetting:
         place_platform(WIDTH//4-30, 160, WIDTH//2-20)
         place_platform(WIDTH-WIDTH//4+30, 160, WIDTH//2-30)
 
@@ -876,14 +873,17 @@ def reset():
         place_platform(WIDTH-WIDTH//4+30, 350, WIDTH//2-30)
 
         place_platform(WIDTH//2, HEIGHT-PLATFORM_HEIGHT//2, WIDTH*4) #bottom platform
+        seen_controls = True
+
+    if resetting:
+
+        if alive == False:
+            canvas.create_rectangle(0, HEIGHT//2+15, WIDTH, HEIGHT//2-20, fill="Black")
 
         alive = True
         points = 0
         counter = 1
 
-        canvas.create_rectangle(0, HEIGHT//2+15, WIDTH, HEIGHT//2-20, fill="Black")
-
-        canvas.delete(player)
         player_image = None
         
         if enemy_list:
@@ -908,8 +908,7 @@ def reset():
                 canvas.delete(b)
         left_bubbles.clear()
 
-        if bubble_images:
-            bubble_images.clear()
+        bubble_images.clear()
 
         spawn_enemy(25, 10)
         spawn_enemy(75, 10)
@@ -924,10 +923,8 @@ def reset():
 
     game_loop()
 
-
 reset_button = tk.Button(root, text = "Start Game", command = reset, bg = "green", font = ("Courier", 10))
 reset_button.pack()
-
 
 root.bind("<Left>", move_left)
 root.bind("<Right>", move_right)

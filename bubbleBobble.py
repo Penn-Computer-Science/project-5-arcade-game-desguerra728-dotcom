@@ -1,22 +1,5 @@
-''']
-3 lives
-platform: player can jump up on them, cannot fall through them
-enemies fall from top to the bottom, then move towards player
-    same platform restrictions as player
-    "angry mode"
-shoot bubbles
-    can jump over bubbles
-catch enemies in bubble
-    enemy in bubble floats up
-    when enemy in bubble and player touches, enemy dies
-    when enemy dead, drop food
-    collect food, gain points
-    higher points scores when bursting several bubbles at the same time
-if touch enemy and not in bubble, dead
-'''
 import random
 import tkinter as tk
-from tkinter import font
 isFacingLeft = True
 WIDTH = 600
 HEIGHT = 450
@@ -654,13 +637,13 @@ def place_platform(x_pos, y_pos, width):
 def move_left(event):
     global isFacingLeft
     if alive:
-        canvas.move(player, -19, 0)
+        canvas.move(player, -22, 0)
         isFacingLeft = True
 
 def move_right(event):
     global isFacingLeft
     if alive:
-        canvas.move(player, 19, 0)
+        canvas.move(player, 22, 0)
         isFacingLeft = False
 
 def jump(event):
@@ -682,8 +665,11 @@ def game_loop():
     j = points//10
 
     if counter == 0:
-        for i in range(j):
+        for i in range(j-2):
             spawn_enemy(random.randint(0, WIDTH-50), 0)
+    elif  not enemy_list:
+        for i in range(j):
+            spawn_enemy(random.randint(0, WIDTH-50), -15)
     
 
     canvas.create_rectangle(0, 0, WIDTH, 30, fill="#240141")
@@ -876,7 +862,6 @@ def reset():
         seen_controls = True
 
     if resetting:
-
         if alive == False:
             canvas.create_rectangle(0, HEIGHT//2+15, WIDTH, HEIGHT//2-20, fill="Black")
 

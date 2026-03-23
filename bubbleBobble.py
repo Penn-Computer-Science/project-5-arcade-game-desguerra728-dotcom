@@ -801,23 +801,21 @@ def game_loop():
         ex1, ey1, ex2, ey2 = canvas.bbox(e)
         for b in left_bubbles[:]:
             bx1, by1, bx2, by2 = canvas.bbox(b)
-            if ex1<bx2<ex2 and (by1<ey2<by2 or by1<ey1<by2 or by1==ey1):
+            if ex1<bx2<ex2 and (by1<ey2<by2 or by1<ey1<by2 or by1==ey1) and canvas.coords(e):
                 canvas.delete(b)
                 left_bubbles.remove(b)
-                if canvas.coords(e):
-                    spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
-                    canvas.delete(e)
-                    enemy_list.remove(e)
+                spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
+                canvas.delete(e)
+                enemy_list.remove(e)
 
         for a in right_bubbles[:]:
             ax1, ay1, ax2, ay2 = canvas.bbox(a)
-            if ex2>ax1>ex1 and (ay1<ey2<ay2 or ay1<ey1<ay2 or ay1==ey1):
+            if ex2>ax1>ex1 and (ay1<ey2<ay2 or ay1<ey1<ay2 or ay1==ey1) and canvas.coords(e):
                 canvas.delete(a)
                 right_bubbles.remove(a)
-                if canvas.coords(e):
-                    spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
-                    canvas.delete(e)
-                    enemy_list.remove(e)
+                spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
+                canvas.delete(e)
+                enemy_list.remove(e)
         
         if (ex1<px1<ex2 or ex2<px2<ex1) and (ey1<py2<ey2 or ey1<py1<ey2 or py1==ey1):
             canvas.create_text(WIDTH//2, HEIGHT//2, text = "Game Over", fill = "#ff0000", font = ("Arial", 20, "bold"))

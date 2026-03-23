@@ -618,15 +618,16 @@ def spawn_player(x_pos, y_pos):
     player = canvas.create_image(x_pos, y_pos, image=pImg, anchor="center")
 
 def spawn_bubble(event):
-    img = make_bubble_sprite()
-    bubble_images.append(img)
-    if alive:
-        if isFacingLeft:
-            bubble = canvas.create_image(canvas.coords(player)[0]-20, canvas.coords(player)[1], image=img, anchor="center")
-            left_bubbles.append(bubble)
-        else:
-            bubble = canvas.create_image(canvas.coords(player)[0]+20, canvas.coords(player)[1], image=img, anchor="center")
-            right_bubbles.append(bubble)
+    if len(right_bubbles) + len(left_bubbles) < 5:
+        img = make_bubble_sprite()
+        bubble_images.append(img)
+        if alive:
+            if isFacingLeft:
+                bubble = canvas.create_image(canvas.coords(player)[0]-20, canvas.coords(player)[1], image=img, anchor="center")
+                left_bubbles.append(bubble)
+            else:
+                bubble = canvas.create_image(canvas.coords(player)[0]+20, canvas.coords(player)[1], image=img, anchor="center")
+                right_bubbles.append(bubble)
 
 def place_platform(x_pos, y_pos, width):
     img = make_platform(width)
@@ -735,7 +736,7 @@ def game_loop():
     if onPlatform == False:
         canvas.move(player, 0, 9)
     
-    for e in enemy_list:
+    for e in enemy_list[:]:
         ex1, ey1, ex2, ey2 = canvas.bbox(e)
         eOnPlatform = False
 
@@ -803,18 +804,20 @@ def game_loop():
             if ex1<bx2<ex2 and (by1<ey2<by2 or by1<ey1<by2 or by1==ey1):
                 canvas.delete(b)
                 left_bubbles.remove(b)
-                spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
-                canvas.delete(e)
-                enemy_list.remove(e)
+                if canvas.coords(e):
+                    spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
+                    canvas.delete(e)
+                    enemy_list.remove(e)
 
         for a in right_bubbles[:]:
             ax1, ay1, ax2, ay2 = canvas.bbox(a)
             if ex2>ax1>ex1 and (ay1<ey2<ay2 or ay1<ey1<ay2 or ay1==ey1):
                 canvas.delete(a)
                 right_bubbles.remove(a)
-                spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
-                canvas.delete(e)
-                enemy_list.remove(e)
+                if canvas.coords(e):
+                    spawn_captured_enemy(canvas.coords(e)[0], canvas.coords(e)[1])
+                    canvas.delete(e)
+                    enemy_list.remove(e)
         
         if (ex1<px1<ex2 or ex2<px2<ex1) and (ey1<py2<ey2 or ey1<py1<ey2 or py1==ey1):
             canvas.create_text(WIDTH//2, HEIGHT//2, text = "Game Over", fill = "#ff0000", font = ("Arial", 20, "bold"))
@@ -832,7 +835,7 @@ def game_loop():
             if cy1>30:
                 canvas.move(ce, 0, -5)
         
-            if (cx1<px2<cx2 or cx2>px1>cx1) and (py1<cy2<py2 or py1<cy1<py2 or py1==cy1):
+            if (cx1<px2<cx2 or cx2>px1>cx1 or px1==cx1) and (py1<cy2<py2 or py1<cy1<py2 or py1==cy1):
                 canvas.delete(ce)
                 captured_enemy_list.remove(ce)
                 points += 10
